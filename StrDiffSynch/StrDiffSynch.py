@@ -18,12 +18,12 @@ class StrDiff:
             elif tag == 'replace':
                 # from_str[i1:i2] = to_str[j1:j2]
                 matcher.append((tag, i1, i2, to_str[j1:j2]))
-        self._matcher = matcher
+        self.metadata = tuple(matcher)
 
     def __add__(self, from_str: str):
         assert type(from_str) == str
         from_str = list(from_str)
-        for tag, i1, i2, diff_str in self._matcher:
+        for tag, i1, i2, diff_str in self.metadata:
             if tag == 'delete':
                 del from_str[i1:i2]
             elif tag == 'equal':
