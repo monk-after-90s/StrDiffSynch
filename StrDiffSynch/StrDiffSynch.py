@@ -10,8 +10,9 @@ class StrDiff:
         :param metadata:Like:
         [
         ('d', 38, 39, None),
-        ('d', 19, 29, None),
-        ('h', '7dd2bf72f19411ad72e04708f6055fd3b7dd9ab45943b2e71a3d34ac5a4cc2bf', '43ca572d0bbad16c017baf1700c8ed12dcfdcfe936bc014b3bcdb522ab5e1a37')
+        ('i', 19, 29, 'ewr'),#insert
+        ('r', 19, 29, 'rewr'),#replace
+        ('h', '7dd2bf72f19411ad72e04708f6055fd3b7dd9ab45943b2e71a3d34ac5a4cc2bf', '43ca572d0bbad16c017baf1700c8ed12dcfdcfe936bc014b3bcdb522ab5e1a37')#hash values of the initial string and target string
         ]
         :return:
         '''
