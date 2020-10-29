@@ -1,4 +1,5 @@
 import difflib
+import hashlib
 
 
 class StrDiff:
@@ -21,6 +22,8 @@ class StrDiff:
         return new
 
     def __init__(self, from_str: str, to_str: str):
+        from_str_hash = hashlib.sha256(from_str.encode()).hexdigest()
+        to_str_hash = hashlib.sha256(to_str.encode()).hexdigest()
         matcher = []
         for tag, i1, i2, j1, j2 in reversed(difflib.SequenceMatcher(None, from_str, to_str).get_opcodes()):
             if tag == 'delete':
@@ -34,10 +37,15 @@ class StrDiff:
             elif tag == 'replace':
                 # from_str[i1:i2] = to_str[j1:j2]
                 matcher.append(('r', i1, i2, to_str[j1:j2]))
+        matcher.append(('h', from_str_hash, to_str_hash, None))
         self.metadata = tuple(matcher)
 
     def __add__(self, from_str: str):
         assert type(from_str) == str
+        try:
+            assert self.metadata[-1][1] == hashlib.sha256(from_str.encode()).hexdigest()
+        except AssertionError:
+            raise AssertionError('Wrong string.')
         from_str = list(from_str)
         for tag, i1, i2, diff_str in self.metadata:
             if tag == 'd':
@@ -48,6 +56,8 @@ class StrDiff:
             elif tag == 'r':
                 from_str[i1:i2] = diff_str
         to_str = ''.join(from_str)
+        assert self.metadata[-1][2] == hashlib.sha256(to_str.encode()).hexdigest()
+
         return to_str
 
     def __radd__(self, other: str):
@@ -57,7 +67,7 @@ class StrDiff:
 if __name__ == '__main__':
     import json
 
-    data1 = {"name": "davis", "other": {"age": 18}}
-    data2 = {"name": "davis", "age": 18}
-    diff = StrDiff(json.dumps(data1), json.dumps(data2))
-    print(json.loads(json.dumps(data1) + diff) == data2)
+    data1 = json.dumps({"name": "davis", "other": {"age": 18}})
+    data2 = json.dumps({"name": "davis", "age": 18})
+    diff = StrDiff(data1, data2)
+    print(data1 + diff == data2)
