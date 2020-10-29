@@ -2,6 +2,12 @@ import difflib
 
 
 class StrDiff:
+    @classmethod
+    def create_str_diff_from_metadata(cls, metadata: tuple):
+        new = StrDiff('', '')
+        new.metadata = metadata
+        return new
+
     def __init__(self, from_str: str, to_str: str):
         from_str = list(from_str)
         to_str = list(to_str)
