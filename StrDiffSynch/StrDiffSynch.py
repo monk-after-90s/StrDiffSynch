@@ -9,8 +9,6 @@ class StrDiff:
         return new
 
     def __init__(self, from_str: str, to_str: str):
-        from_str = list(from_str)
-        to_str = list(to_str)
         matcher = []
         for tag, i1, i2, j1, j2 in reversed(difflib.SequenceMatcher(None, from_str, to_str).get_opcodes()):
             if tag == 'delete':
