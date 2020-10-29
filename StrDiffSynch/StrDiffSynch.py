@@ -13,29 +13,27 @@ class StrDiff:
         for tag, i1, i2, j1, j2 in reversed(difflib.SequenceMatcher(None, from_str, to_str).get_opcodes()):
             if tag == 'delete':
                 # del from_str[i1:i2]
-                matcher.append((tag, i1, i2, None))
+                matcher.append(('d', i1, i2, None))
             elif tag == 'equal':
                 pass
             elif tag == 'insert':
                 # from_str[i1:i2] = to_str[j1:j2]
-                matcher.append((tag, i1, i2, to_str[j1:j2]))
+                matcher.append(('i', i1, i2, to_str[j1:j2]))
             elif tag == 'replace':
                 # from_str[i1:i2] = to_str[j1:j2]
-                matcher.append((tag, i1, i2, to_str[j1:j2]))
+                matcher.append(('r', i1, i2, to_str[j1:j2]))
         self.metadata = tuple(matcher)
 
     def __add__(self, from_str: str):
         assert type(from_str) == str
         from_str = list(from_str)
         for tag, i1, i2, diff_str in self.metadata:
-            if tag == 'delete':
+            if tag == 'd':
                 del from_str[i1:i2]
-            elif tag == 'equal':
-                pass
-            elif tag == 'insert':
+            elif tag == 'i':
                 from_str[i1:i2] = diff_str
 
-            elif tag == 'replace':
+            elif tag == 'r':
                 from_str[i1:i2] = diff_str
         to_str = ''.join(from_str)
         return to_str
