@@ -4,6 +4,17 @@ import difflib
 class StrDiff:
     @classmethod
     def create_str_diff_from_metadata(cls, metadata: tuple):
+        '''
+        Create a StrDiff instance from a meta data.
+
+        :param metadata:Like:
+        [
+        ('d', 38, 39, None),
+        ('d', 19, 29, None),
+        ('h', '7dd2bf72f19411ad72e04708f6055fd3b7dd9ab45943b2e71a3d34ac5a4cc2bf', '43ca572d0bbad16c017baf1700c8ed12dcfdcfe936bc014b3bcdb522ab5e1a37')
+        ]
+        :return:
+        '''
         new = StrDiff('', '')
         new.metadata = metadata
         return new
