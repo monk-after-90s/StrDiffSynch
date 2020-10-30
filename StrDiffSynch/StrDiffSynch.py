@@ -17,14 +17,16 @@ class StrDiff:
         )
         :return:
         '''
-        new = StrDiff('', '')
-
-        if all([op_item[0] in 'dirh' for op_item in metadata]) and \
-                any([op_item[0] == 'h' and type(op_item[1]) == str and type(op_item[2]) == str
-                     for op_item in metadata]):
-            new.metadata = metadata
-            return new
-        else:
+        try:
+            new = StrDiff('', '')
+            if all([op_item[0] in 'dirh' for op_item in metadata]) and \
+                    any([op_item[0] == 'h' and type(op_item[1]) == str and type(op_item[2]) == str
+                         for op_item in metadata]):
+                new.metadata = metadata
+                return new
+            else:
+                raise ValueError('Illegal metadata.')
+        except:
             raise ValueError('Illegal metadata.')
 
     def __init__(self, from_str: str, to_str: str):

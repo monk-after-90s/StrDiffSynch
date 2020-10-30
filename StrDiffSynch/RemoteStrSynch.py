@@ -1,3 +1,4 @@
+import asyncio
 import hashlib
 from functools import lru_cache
 
@@ -70,6 +71,33 @@ class SynchBox:
                 return diff.metadata
             else:  # 完整同步
                 return str(self._local_str)
+        finally:
+            self._remote_str = deepcopy(self._local_str)
+
+    def handle_local_synch_request(self, remote_msg, strdiff_add_error_handler=None):
+        '''
+        :param remote_msg: full remote string or StrDiff metadata--a sequence.
+        :param strdiff_add_error_handler: function to be called when the remote StrDiff instance can't be added to self._local_str.string, to force to fetch the full data.
+        :return: None表示同步完成，若是asyncio.Task实例，则需要等待完成才同步完成
+        '''
+        try:
+            diff = StrDiff.create_str_diff_from_metadata(remote_msg)
+        except ValueError:  # 非差异对象，而是完整配置
+            self._local_str.string = str(remote_msg)
+        else:  # 差异对象
+            try:
+                self._local_str.string += diff
+            except AssertionError:  # 无法合成
+                strdiff_add_error_handler_res = strdiff_add_error_handler()
+                if asyncio.iscoroutine(strdiff_add_error_handler_res):
+                    async def await_remote_full_data_then_handle_local_synch_request():
+                        remote_full_data = await strdiff_add_error_handler_res
+                        self.handle_local_synch_request(remote_full_data)
+
+                    return asyncio.create_task(await_remote_full_data_then_handle_local_synch_request())
+                else:
+                    self.handle_local_synch_request(strdiff_add_error_handler_res)
+
         finally:
             self._remote_str = deepcopy(self._local_str)
 
