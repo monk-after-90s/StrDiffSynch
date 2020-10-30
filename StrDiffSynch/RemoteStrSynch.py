@@ -32,8 +32,8 @@ class StrHash:
 
 
 class SynchBox:
-    def __init__(self):
-        self._local_str = StrHash('')
+    def __init__(self, s: str):
+        self._local_str = StrHash(s)
         self._remote_str_history = LRUCache(20)
         self._remote_str_history.put(self._local_str.hash, str(self._local_str))
 
