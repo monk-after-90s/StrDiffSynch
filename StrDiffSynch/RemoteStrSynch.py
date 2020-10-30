@@ -68,15 +68,18 @@ class SynchBox:
             try:
                 self._local_str.string += diff
             except AssertionError:  # 无法合成
-                strdiff_add_error_handler_res = strdiff_add_error_handler()
-                if asyncio.iscoroutine(strdiff_add_error_handler_res):
-                    async def await_remote_full_data_then_handle_local_synch_request():
-                        remote_full_data = await strdiff_add_error_handler_res
-                        self.handle_local_synch_request(remote_full_data)
+                if strdiff_add_error_handler is not None:
+                    strdiff_add_error_handler_res = strdiff_add_error_handler()
+                    if asyncio.iscoroutine(strdiff_add_error_handler_res):
+                        async def await_remote_full_data_then_handle_local_synch_request():
+                            remote_full_data = await strdiff_add_error_handler_res
+                            self.handle_local_synch_request(remote_full_data)
 
-                    return asyncio.create_task(await_remote_full_data_then_handle_local_synch_request())
+                        return asyncio.create_task(await_remote_full_data_then_handle_local_synch_request())
+                    else:
+                        self.handle_local_synch_request(strdiff_add_error_handler_res)
                 else:
-                    self.handle_local_synch_request(strdiff_add_error_handler_res)
+                    raise
 
         finally:
             self._remote_str_history.put(self._local_str.hash, str(self._local_str))
