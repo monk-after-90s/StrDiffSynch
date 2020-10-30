@@ -101,6 +101,14 @@ class SynchBox:
         finally:
             self._remote_str = deepcopy(self._local_str)
 
+    @property
+    def local_str(self):
+        return self._local_str
+
+    @local_str.setter
+    def local_str(self, s: str):
+        self._local_str.string = s
+
 
 if __name__ == '__main__':
     sh = StrHash('')
