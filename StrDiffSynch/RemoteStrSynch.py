@@ -2,6 +2,7 @@ import hashlib
 from functools import lru_cache
 
 from StrDiffSynch import StrDiff
+from copy import deepcopy
 
 
 class StrHash:
@@ -56,18 +57,21 @@ class SynchBox:
     def _get_remote_data(self, full=False):
         pass
 
-    def handle_remote_synch_request(self, remote_msg: dict):
+    def handle_remote_synch_request(self, remote_hash: str):
         '''
 
-        :param remote_msg:like {'remote_hash':'hfewhfyr89yrq398rhufy932q8ryf9'}
+        :param remote_hash:
         :return: Increment tuple or full data string.
         '''
-        # 增量同步
-        if remote_msg['remote_hash'] == self._remote_str.hash:
-            diff = StrDiff(str(self._remote_str), str(self._local_str))
-            return diff.metadata
-        else:  # 完整同步
-            return str(self._local_str)
+        try:
+            # 增量同步
+            if remote_hash == self._remote_str.hash:
+                diff = StrDiff(str(self._remote_str), str(self._local_str))
+                return diff.metadata
+            else:  # 完整同步
+                return str(self._local_str)
+        finally:
+            self._remote_str = deepcopy(self._local_str)
 
 
 if __name__ == '__main__':
