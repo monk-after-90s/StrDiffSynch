@@ -3,13 +3,13 @@ import hashlib
 from functools import lru_cache
 
 from StrDiffSynch import StrDiff
-from copy import deepcopy
+
+from StrDiffSynch.LRUCache import LRUCache
 
 
 class StrHash:
-    def __init__(self, s: str, endpoint_method, endpoint_url):
+    def __init__(self, s: str):
         self.string = s
-        self.endpoint = (endpoint_method, endpoint_url)
 
     def __str__(self):
         return self.string
@@ -30,33 +30,12 @@ class StrHash:
     def __bool__(self):
         return bool(self._string)
 
-    @property
-    def endpoint(self):
-        return self._endpoint
-
-    @endpoint.setter
-    def endpoint(self, method='GET', url=''):
-        self._endpoint = (method, url)
-
 
 class SynchBox:
-    def __init__(self, remote_endpoint_method, remote_endpoint_url):
-        self._local_str = StrHash('', '', '')
-        self._remote_str = StrHash('', remote_endpoint_method, remote_endpoint_url)
-        self._remote_full_data_function = None
-        self._remote_increment_method = None
-
-    def get_remote_full_data_method(self, func):
-        self._remote_full_data_function = func
-
-    def get_remote_increment_method(self, func):
-        self._remote_increment_method = func
-
-    def force_update_local(self):
-        pass
-
-    def _get_remote_data(self, full=False):
-        pass
+    def __init__(self):
+        self._local_str = StrHash('')
+        self._remote_str_history = LRUCache(20)
+        self._remote_str_history.put(self._local_str.hash, str(self._local_str))
 
     def handle_remote_synch_request(self, remote_hash: str):
         '''
@@ -65,14 +44,15 @@ class SynchBox:
         :return: Increment tuple or full data string.
         '''
         try:
-            # 增量同步
-            if remote_hash == self._remote_str.hash:
-                diff = StrDiff(str(self._remote_str), str(self._local_str))
+            local_remote_str = self._remote_str_history.get(remote_hash)
+            # 找到本级缓存的远程数据，增量同步
+            if local_remote_str is not None:
+                diff = StrDiff(local_remote_str, str(self._local_str))
                 return diff.metadata
             else:  # 完整同步
                 return str(self._local_str)
         finally:
-            self._remote_str = deepcopy(self._local_str)
+            self._remote_str_history.put(self._local_str.hash, str(self._local_str))
 
     def handle_local_synch_request(self, remote_msg, strdiff_add_error_handler=None):
         '''
@@ -99,7 +79,7 @@ class SynchBox:
                     self.handle_local_synch_request(strdiff_add_error_handler_res)
 
         finally:
-            self._remote_str = deepcopy(self._local_str)
+            self._remote_str_history.put(self._local_str.hash, str(self._local_str))
 
     @property
     def local_str(self):
