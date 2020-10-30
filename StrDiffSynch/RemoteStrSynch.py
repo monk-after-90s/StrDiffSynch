@@ -86,11 +86,15 @@ class SynchBox:
 
     @property
     def local_str(self):
-        return self._local_str
+        return str(self._local_str)
 
     @local_str.setter
     def local_str(self, s: str):
         self._local_str.string = s
+
+    @property
+    def local_str_hash(self):
+        return self._local_str.hash
 
 
 if __name__ == '__main__':
