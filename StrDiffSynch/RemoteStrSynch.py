@@ -37,7 +37,7 @@ class SynchBox:
         self._remote_str_history = LRUCache(20)
         self._remote_str_history.put(self._local_str.hash, str(self._local_str))
 
-    def handle_remote_synch_request(self, remote_hash: str):
+    def handle_remote_synch_command(self, remote_hash: str):
         '''
 
         :param remote_hash:
@@ -54,7 +54,7 @@ class SynchBox:
         finally:
             self._remote_str_history.put(self._local_str.hash, str(self._local_str))
 
-    def handle_local_synch_request(self, remote_msg, strdiff_add_error_handler=None):
+    def handle_local_synch_command(self, remote_msg, strdiff_add_error_handler=None):
         '''
         :param remote_msg: full remote string or StrDiff metadata--a sequence.
         :param strdiff_add_error_handler: function to be called when the remote StrDiff instance can't be added to self._local_str.string, to force to fetch the full data.
@@ -71,13 +71,13 @@ class SynchBox:
                 if strdiff_add_error_handler is not None:
                     strdiff_add_error_handler_res = strdiff_add_error_handler()
                     if asyncio.iscoroutine(strdiff_add_error_handler_res):
-                        async def await_remote_full_data_then_handle_local_synch_request():
+                        async def await_remote_full_data_then_handle_local_synch_command():
                             remote_full_data = await strdiff_add_error_handler_res
-                            self.handle_local_synch_request(remote_full_data)
+                            self.handle_local_synch_command(remote_full_data)
 
-                        return asyncio.create_task(await_remote_full_data_then_handle_local_synch_request())
+                        return asyncio.create_task(await_remote_full_data_then_handle_local_synch_command())
                     else:
-                        self.handle_local_synch_request(strdiff_add_error_handler_res)
+                        self.handle_local_synch_command(strdiff_add_error_handler_res)
                 else:
                     raise
 
