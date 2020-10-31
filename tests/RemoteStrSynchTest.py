@@ -142,3 +142,21 @@ class RemoteStrSynchTest(TestCase):
             self.assertEqual(self.synch_box1.local_str, self.synch_box2.local_str)
 
         asyncio.get_event_loop().run_until_complete(test_5_strdiff_add_error_handler())
+
+    def test_6_mutual_synchronization(self):
+        # box2随机改变
+        a = list(self.synch_box2.local_str)
+        for random_index in sample(range(1000), 300):
+            a[random_index] = sample(printable, 1)[0]
+        self.synch_box2.local_str = ''.join(a)
+        # box2同步远程，即box1
+        remote_synch_data = self.synch_box2.handle_remote_synch_request(self.synch_box1.local_str_hash)
+        self.assertEqual(tuple, type(remote_synch_data))
+        StrDiff.create_str_diff_from_metadata(remote_synch_data)
+        self.synch_box1.handle_local_synch_request(remote_synch_data)
+        self.assertEqual(self.synch_box1.local_str, self.synch_box2.local_str)
+
+    def test_7_refetch_full_raw_string(self):
+        # 用假的哈希值获取差异值
+        remote_synch_data = self.synch_box2.handle_remote_synch_request('hj938d2y38iw81')
+        self.assertEqual(remote_synch_data, self.synch_box2.local_str)
