@@ -9,7 +9,7 @@ import asyncio
 
 class RemoteStrSynchTest(TestCase):
     '''
-    全部测试，不要单个测试
+    全部测试，不要单个测试。不能保证一定通过测试，多测试几次，大部分都能测试通过。
     '''
     box2_history = []
 
