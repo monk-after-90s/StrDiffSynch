@@ -5,10 +5,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="StrDiffSynch",
-    version="2.0.0",
+    version="2.0.1",
     author="Antas",
     author_email="",
-    description="One of two strings can change into the other when absorbing the difference among them. Vice versa.",
+    description="One of two strings can change into the other when absorbing the difference among them. "
+                "Remote strings could be synchronized through minimum data.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/monk-after-90s/StrDiffSynch.git',
