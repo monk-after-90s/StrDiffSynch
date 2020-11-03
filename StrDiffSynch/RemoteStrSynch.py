@@ -58,7 +58,7 @@ class SynchBox:
         '''
         :param remote_msg: full remote string or StrDiff metadata--a sequence.
         :param strdiff_add_error_handler: function to be called when the remote StrDiff instance can't be added to self._local_str.string, to force to fetch the full data.
-        :return: None表示同步完成，若是asyncio.Task实例，则需要等待完成才同步完成
+        :return: None means the synchronization completed. Otherwise a asyncio.Task instance means that synchronization completes only if the task is awaited.
         '''
         try:
             diff = StrDiff.create_str_diff_from_metadata(remote_msg)

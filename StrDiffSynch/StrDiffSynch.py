@@ -1,5 +1,6 @@
 import difflib
 import hashlib
+from functools import lru_cache
 
 
 class StrDiff:
@@ -33,7 +34,7 @@ class StrDiff:
         from_str_hash = hashlib.sha256(from_str.encode()).hexdigest()
         to_str_hash = hashlib.sha256(to_str.encode()).hexdigest()
         matcher = []
-        for tag, i1, i2, j1, j2 in reversed(difflib.SequenceMatcher(None, from_str, to_str).get_opcodes()):
+        for tag, i1, i2, j1, j2 in self._get_opcodes(from_str, to_str):
             if tag == 'delete':
                 # del from_str[i1:i2]
                 matcher.append(('d', i1, i2, None))
@@ -47,6 +48,10 @@ class StrDiff:
                 matcher.append(('r', i1, i2, to_str[j1:j2]))
         matcher.append(('h', from_str_hash, to_str_hash, None))
         self.metadata = tuple(matcher)
+
+    @lru_cache(maxsize=128, typed=False)
+    def _get_opcodes(self, from_str: str, to_str: str):
+        return reversed(difflib.SequenceMatcher(None, from_str, to_str).get_opcodes())
 
     def __add__(self, from_str: str):
         assert type(from_str) == str
