@@ -46,7 +46,7 @@ class RemoteStrSynchTest(TestCase):
         remote_synch_data = self.synch_box1.handle_remote_synch_command(self.box2_history[0].hash)
         self.assertEqual(tuple, type(remote_synch_data))
         StrDiff.create_str_diff_from_metadata(remote_synch_data)
-        with self.assertRaisesRegex(AssertionError, 'Wrong string.'):
+        with self.assertRaisesRegex(AssertionError, 'Wrong string adds StrDiff.'):
             self.synch_box2.handle_local_synch_command(remote_synch_data)
 
         # 从现在的数据获取增量，可以跟现在的数据合并
@@ -115,7 +115,17 @@ class RemoteStrSynchTest(TestCase):
             remote_synch_data = self.synch_box1.handle_remote_synch_command(self.box2_history[0].hash)
             self.assertEqual(tuple, type(remote_synch_data))
             StrDiff.create_str_diff_from_metadata(remote_synch_data)
-            with self.assertRaisesRegex(AssertionError, 'Wrong string.'):
+            with self.assertRaisesRegex(AssertionError, 'Wrong string adds StrDiff.'):
+                self.synch_box2.handle_local_synch_command(remote_synch_data)
+
+            # 故意使目标哈希值错误
+            remote_synch_data = self.synch_box1.handle_remote_synch_command(self.synch_box2.local_str_hash)
+            self.assertEqual(tuple, type(remote_synch_data))
+            remote_synch_data = \
+                tuple(data if data[0] != 'h' else (data[0], data[1], '', data[3]) for data in remote_synch_data)
+
+            StrDiff.create_str_diff_from_metadata(remote_synch_data)
+            with self.assertRaisesRegex(AssertionError, 'Wrong string adds StrDiff.'):
                 self.synch_box2.handle_local_synch_command(remote_synch_data)
 
             # 传入强制获取完整数据的方法
@@ -131,7 +141,7 @@ class RemoteStrSynchTest(TestCase):
             remote_synch_data = self.synch_box1.handle_remote_synch_command(self.box2_history[0].hash)
             self.assertEqual(tuple, type(remote_synch_data))
             StrDiff.create_str_diff_from_metadata(remote_synch_data)
-            with self.assertRaisesRegex(AssertionError, 'Wrong string.'):
+            with self.assertRaisesRegex(AssertionError, 'Wrong string adds StrDiff.'):
                 self.synch_box2.handle_local_synch_command(remote_synch_data)
 
             # 传入强制获取完整数据的方法

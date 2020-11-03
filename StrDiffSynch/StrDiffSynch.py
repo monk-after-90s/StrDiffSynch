@@ -59,7 +59,7 @@ class StrDiff:
         try:
             assert self.metadata[-1][1] == hashlib.sha256(from_str.encode()).hexdigest()
         except AssertionError:
-            raise AssertionError('Wrong string.')
+            raise AssertionError('Wrong string adds StrDiff.')
         from_str = list(from_str)
         for tag, i1, i2, diff_str in self.metadata:
             if tag == 'd':
@@ -70,7 +70,10 @@ class StrDiff:
             elif tag == 'r':
                 from_str[i1:i2] = diff_str
         to_str = ''.join(from_str)
-        assert self.metadata[-1][2] == hashlib.sha256(to_str.encode()).hexdigest()
+        try:
+            assert self.metadata[-1][2] == hashlib.sha256(to_str.encode()).hexdigest()
+        except AssertionError:
+            raise AssertionError('Wrong string adds StrDiff.')
 
         return to_str
 

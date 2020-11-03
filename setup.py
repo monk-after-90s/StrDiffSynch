@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="StrDiffSynch",
-    version="2.2.3",
+    version="2.2.4",
     author="Antas",
     author_email="",
     description="One of two strings can change into the other when absorbing the difference among them. "
