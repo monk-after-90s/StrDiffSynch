@@ -5,6 +5,7 @@ from functools import lru_cache
 from StrDiffSynch import StrDiff
 
 from StrDiffSynch.LRUCache import LRUCache
+import platform
 
 
 @lru_cache(maxsize=128, typed=False)
@@ -76,7 +77,10 @@ class SynchBox:
                             remote_full_data = await strdiff_add_error_handler_res
                             self.handle_local_synch_command(remote_full_data)
 
-                        return asyncio.create_task(await_remote_full_data_then_handle_local_synch_command())
+                        if platform.python_version() >= '3.7.0':
+                            return asyncio.create_task(await_remote_full_data_then_handle_local_synch_command())
+                        else:
+                            return asyncio.ensure_future(await_remote_full_data_then_handle_local_synch_command())
                     else:
                         self.handle_local_synch_command(strdiff_add_error_handler_res)
                 else:
