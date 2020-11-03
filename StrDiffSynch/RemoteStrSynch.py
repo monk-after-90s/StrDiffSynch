@@ -58,7 +58,7 @@ class SynchBox:
     def handle_local_synch_command(self, remote_msg, strdiff_add_error_handler=None):
         '''
         :param remote_msg: full remote string or StrDiff metadata--a sequence.
-        :param strdiff_add_error_handler: function to be called when the remote StrDiff instance can't be added to self._local_str.string, to force to fetch the full data.
+        :param strdiff_add_error_handler: function to be called when the remote StrDiff instance can't be added to self._local_str.string, to force to fetch the full data.Otherwise, an AssertionError would be raised.
         :return: None means the synchronization completed. Otherwise a asyncio.Task instance means that synchronization completes only if the task is awaited.
         '''
         try:
