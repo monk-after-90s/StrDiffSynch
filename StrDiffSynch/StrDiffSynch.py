@@ -5,7 +5,7 @@ from functools import lru_cache
 
 @lru_cache(maxsize=128, typed=False)
 def get_opcodes(from_str: str, to_str: str):
-    return reversed(difflib.SequenceMatcher(None, from_str, to_str).get_opcodes())
+    return difflib.SequenceMatcher(None, from_str, to_str).get_opcodes()[::-1]
 
 
 class StrDiff:
