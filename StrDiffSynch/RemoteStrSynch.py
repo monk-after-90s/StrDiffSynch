@@ -7,6 +7,11 @@ from StrDiffSynch import StrDiff
 from StrDiffSynch.LRUCache import LRUCache
 
 
+@lru_cache(maxsize=128, typed=False)
+def get_hash(s: str):
+    return hashlib.sha256(s.encode()).hexdigest()
+
+
 class StrHash:
     def __init__(self, s: str):
         self.string = s
@@ -21,11 +26,7 @@ class StrHash:
     @string.setter
     def string(self, s: str):
         self._string = s
-        self.hash = self._get_hash(s)
-
-    @lru_cache(maxsize=128, typed=False)
-    def _get_hash(self, s: str):
-        return hashlib.sha256(s.encode()).hexdigest()
+        self.hash = get_hash(s)
 
     def __bool__(self):
         return bool(self._string)
