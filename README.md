@@ -1,5 +1,30 @@
-# StrDiff
-One of two strings can change into the other when absorbing the difference among them. 
+# StrDiffSynch
+
+This module calculates the difference from one string to another. If the origin string absorbs the difference, it
+becomes the other string.
+
+Thus, two endpoints could synchronize the strings by passing the difference.
+
+---
+
+### [Install](#Install) · [Usage](#Usage) ·
+
+---
+
+## Install
+
+[StrDiffSynch in **PyPI**](https://pypi.org/project/StrDiffSynch/)
+
+```shell
+pip install StrDiffSynch
+```
+
+## Usage
+
+### StrDiff
+
+One of two strings can change into the other when absorbing the difference from it to the other.
+
 ```python
 import json
 from StrDiffSynch import StrDiff
@@ -10,125 +35,175 @@ diff = StrDiff(data1, data2)
 assert data1 + diff == data2
 assert diff + data1 == data2
 ```
-# SynchBox
-This class is used for synchronizing big string but not big enough to have to be stored in a database, 
-among two endpoints.
+
+### SynchBox
+
+This class is used for synchronizing big string but not big enough to have to be stored in a database, among two
+endpoints. We will demonstrate with codes. You can type them in python console.
+
 ```python
 import asyncio
 
 from StrDiffSynch import SynchBox
+```
 
-# LOCAL
-# Define a SynchBox instance to contain the string
-synch_box = SynchBox('This is big data.')
-# update the containing string
-synch_box.local_str = 'This is another big data.'
-# If a request with the remote string hash value comes to ask to synchronize the string at the remote endpoint, local endpoint handles the request.
-# REMOTE
-synch_box2 = SynchBox('')
-remote_str_hash = synch_box2.local_str_hash
-# request though the web
-# LOCAL
-remote_synch_data = synch_box.handle_remote_synch_command(remote_str_hash)
-# response through the web
-# REMOTE
-# Because no synchronization has happened, remote_synch_data would be the raw big string, 'This is another big data.' as demonstration.
-synch_box2.handle_local_synch_command(remote_synch_data)
-assert 'This is another big data.' == remote_synch_data == synch_box2.local_str
+At endpoint A, set the SynchBox to contain the string.
 
-# Now repeat
-# REMOTE
-remote_str_hash = synch_box2.local_str_hash
-# request though the web
-# LOCAL
-remote_synch_data = synch_box.handle_remote_synch_command(remote_str_hash)
-# response through the web
-# REMOTE
-# Well now that initial synchronization has happened, SynchBox will try to find the difference information between these two copy , which is usually much smaller than the raw string.
-assert type(remote_synch_data) != str and any(['h' == i[0] for i in remote_synch_data])
-synch_box2.handle_local_synch_command(remote_synch_data)  # At this step,there is nothing to change in fact.
-assert synch_box2.local_str == synch_box.local_str
+```python
+synch_boxA = SynchBox('This is big data.')
+```
 
-# Now repeat
-# LOCAL
-# make some change
-synch_box.local_str += 'u28dy2'
-# REMOTE
-remote_str_hash = synch_box2.local_str_hash
-# request though the web
-# LOCAL
-remote_synch_data = synch_box.handle_remote_synch_command(remote_str_hash)
-# response through the web
-# REMOTE
-assert type(remote_synch_data) != str and any(['h' == i[0] for i in remote_synch_data])
-old_str = synch_box2.local_str
-synch_box2.handle_local_synch_command(remote_synch_data)  # At this step,changes happen.
-assert synch_box2.local_str == synch_box.local_str != old_str
+Update the containing string.
 
-# Now repeat
-# Vice versa, REMOTE could synchronizes LOCAL.
-# REMOTE
-# make some change
-synch_box2.local_str = synch_box2.local_str[0:3] + synch_box2.local_str[-3:]
-# LOCAL
-str_hash = synch_box.local_str_hash
-# request though the web
-# REMOTE
-synch_data = synch_box2.handle_remote_synch_command(str_hash)
-# response through the web
-# LOCAL
+```python
+synch_boxA.local_str = 'This is another big data.'
+```
+
+At endpoint B, set the SynchBox to contain a empty string.
+
+```python
+synch_boxB = SynchBox('')
+```
+
+Get the string hash at endpoint B.
+
+```python
+B_str_hash = synch_boxB.local_str_hash
+```
+
+Now endpoint A is commanded to synchronize endpoint B. Endpoint A needs to know the string hash at endpoint B, to
+calculate the difference data.
+
+```python
+B_synch_data = synch_boxA.handle_remote_synch_command(B_str_hash)
+```
+
+Because no synchronization has happened, 'B_synch_data' would be the raw big string, 'This is another big data.' as
+demonstration.
+
+Endpoint B gets 'B_synch_data' to synchronize itself.
+
+```python
+synch_boxB.handle_local_synch_command(B_synch_data)
+assert 'This is another big data.' == B_synch_data == synch_boxB.local_str
+```
+
+Now repeat to synchronize to see what will happen after the initial synchronization.
+
+```python
+B_str_hash = synch_boxB.local_str_hash
+
+B_synch_data = synch_boxA.handle_remote_synch_command(B_str_hash)
+```
+
+Well now that initial synchronization has happened, SynchBox will try to find the difference information between these
+two copy , which is usually much smaller than the raw string.
+
+```python
+assert type(B_synch_data) != str and any(['h' == i[0] for i in B_synch_data])
+```
+
+At this step,there is nothing to change in fact.
+
+```python
+synch_boxB.handle_local_synch_command(B_synch_data)
+assert synch_boxB.local_str == synch_boxA.local_str
+```
+
+Now repeat once more. Let's make some change at endpoint A.
+
+```python
+synch_boxA.local_str += 'u28dy2'
+B_str_hash = synch_boxB.local_str_hash
+B_synch_data = synch_boxA.handle_remote_synch_command(B_str_hash)
+assert type(B_synch_data) != str and any(['h' == i[0] for i in B_synch_data])
+old_str = synch_boxB.local_str
+```
+
+Apply the change.
+
+```python
+synch_boxB.handle_local_synch_command(B_synch_data)
+assert synch_boxB.local_str == synch_boxA.local_str != old_str
+```
+
+Vice versa, endpoint B could synchronizes endpoint A. Let's make some change at endpoint B.
+
+```python
+synch_boxB.local_str = synch_boxB.local_str[0:3] + synch_boxB.local_str[-3:]
+str_hash = synch_boxA.local_str_hash
+synch_data = synch_boxB.handle_remote_synch_command(str_hash)
 assert type(synch_data) != str and any(['h' == i[0] for i in synch_data])
-old_str = synch_box.local_str
-synch_box.handle_local_synch_command(synch_data)  # At this step,changes happen.
-assert synch_box2.local_str == synch_box.local_str != old_str
+old_str = synch_boxA.local_str
+synch_boxA.handle_local_synch_command(synch_data)
+assert synch_boxB.local_str == synch_boxA.local_str != old_str
+```
 
-# A bad situation
-# REMOTE
-remote_str_hash = synch_box2.local_str_hash
-# request though the web
-# LOCAL
-remote_synch_data = synch_box.handle_remote_synch_command(remote_str_hash)
-# response through the web
-# REMOTE
-assert type(remote_synch_data) != str and any(['h' == i[0] for i in remote_synch_data])
-# Before the difference information synchronization data comes, the string with the hash value remote_str_hash changes for some reason.
-synch_box2.local_str = 'Hello world'
-# The coming information can't be handled.
+Well, everything is OK so far. However there is a possibility that the synchronization data can not be applied.
+
+```python
+B_str_hash = synch_boxB.local_str_hash
+B_synch_data = synch_boxA.handle_remote_synch_command(B_str_hash)
+assert type(B_synch_data) != str and any(['h' == i[0] for i in B_synch_data])
+```
+
+Before the synchronization data comes, the string with the hash value B_str_hash changes for some reason.
+
+```python
+synch_boxB.local_str = 'Hello world'
+```
+
+The coming data can't be handled.
+
+```python
 try:
-    synch_box2.handle_local_synch_command(remote_synch_data)
+    synch_boxB.handle_local_synch_command(B_synch_data)
 except AssertionError:
     print('Fail to handle_local_synch_command')
+```
 
+If you want to automatically handle this bad situation, you can pass the keyword parameter "strdiff_add_error_handler"
+to
+"handle_local_synch_command", to be called to fetch the raw string. For example,
 
-# If you want to automatically handle this bad situation, you can pass the keyword parameter strdiff_add_error_handler to handle_local_synch_command, to be called to fetch the raw string.
-# For example,
-# def fetch_raw_string():
-#     return requests.get('http://www.baidu.com/raw-string')
-# We will demonstrate easily.
+```python
 def fetch_raw_string():
-    return synch_box.local_str
+    return requests.get('http://www.baidu.com/raw-string')
+```
+
+We will demonstrate an easy example.
+
+```python
+def fetch_raw_string():
+    return synch_boxA.local_str
 
 
-synch_box2.handle_local_synch_command(remote_synch_data, fetch_raw_string)  # At this step,changes happen
-assert synch_box2.local_str == synch_box.local_str
+synch_boxB.handle_local_synch_command(B_synch_data, fetch_raw_string)
+assert synch_boxB.local_str == synch_boxA.local_str
+```
 
+If you are using this module in a coroutine function, you can pass a coroutine function as the error handler to request.
+For example:
 
-# If you are using this module in a coroutine function, to request you can pass a coroutine function as the error handler,
-# for example:
-# async def fetch_raw_string():
-#     async with aiohttp.ClientSession().get('http://www.baidu.com/raw-string') as r:
-#         return await r.text()
-# We will demonstrate easily.
+```python
 async def fetch_raw_string():
-    return synch_box.local_str
+    async with aiohttp.ClientSession().get('http://www.baidu.com/raw-string') as r:
+        return await r.text()
+```
+
+We will demonstrate an easy example:
+
+```python
+async def fetch_raw_string():
+    return synch_boxA.local_str
 
 
 async def main():
-    handle_local_synch_command_res = synch_box2.handle_local_synch_command(remote_synch_data, fetch_raw_string)
+    handle_local_synch_command_res = synch_boxB.handle_local_synch_command(B_synch_data, fetch_raw_string)
     # try to await the result only when necessary.
     if type(handle_local_synch_command_res) == asyncio.Task:
         await handle_local_synch_command_res
-    assert synch_box2.local_str == synch_box.local_str
+    assert synch_boxB.local_str == synch_boxA.local_str
 
 
 asyncio.get_event_loop().run_until_complete(main())

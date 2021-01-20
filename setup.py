@@ -8,8 +8,12 @@ setuptools.setup(
     version="2.2.4",
     author="Antas",
     author_email="",
-    description="One of two strings can change into the other when absorbing the difference among them. "
-                "Remote strings could be synchronized through minimum data.",
+    description='''
+This module calculates the difference from one string to another. If the origin string absorbs the difference, it
+becomes the other string.
+
+Thus, two endpoints could synchronize the strings by passing the difference.
+    ''',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/monk-after-90s/StrDiffSynch.git',
