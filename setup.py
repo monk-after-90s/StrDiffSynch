@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="StrDiffSynch",
-    version="2.2.4",
+    version="2.2.5",
     author="Antas",
     author_email="",
     description='''
