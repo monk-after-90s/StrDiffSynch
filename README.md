@@ -102,8 +102,9 @@ assert type(B_synch_data) != str and any(['h' == i[0] for i in B_synch_data])
 At this step,there is nothing to change in fact.
 
 ```python
+old_B_local_str = synch_boxB.local_str
 synch_boxB.handle_local_synch_command(B_synch_data)
-assert synch_boxB.local_str == synch_boxA.local_str
+assert synch_boxB.local_str == synch_boxA.local_str == old_B_local_str
 ```
 
 Now repeat once more. Let's make some change at endpoint A.
