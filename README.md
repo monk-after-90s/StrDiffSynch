@@ -90,16 +90,12 @@ assert 'This is another big data.' == B_synch_data == synch_boxB.local_str
 
 Now repeat to synchronize to see what will happen after the initial synchronization.
 
-```python
-B_str_hash = synch_boxB.local_str_hash
-
-B_synch_data = synch_boxA.handle_remote_synch_command(B_str_hash)
-```
-
 Well now that initial synchronization has happened, SynchBox will try to find the difference information between these
 two copy , which is usually much smaller than the raw string.
 
 ```python
+B_str_hash = synch_boxB.local_str_hash
+B_synch_data = synch_boxA.handle_remote_synch_command(B_str_hash)
 assert type(B_synch_data) != str and any(['h' == i[0] for i in B_synch_data])
 ```
 
